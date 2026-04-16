@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Assessment {
+  id                 String          @id @default(uuid())
+  organizationName   String
+  industry           String
+  budgetLevel        String
+  securityLevel      String
+  complianceLevel    String
+  collaborationLevel String
+  portabilityNeed    String
+  controlNeed        String
+  teamSize           String
+  createdAt          DateTime        @default(now())
+
+  recommendation     Recommendation?
+}
+
+model Recommendation {
+  id              String      @id @default(uuid())
+  assessmentId    String      @unique
+  assessment      Assessment  @relation(fields: [assessmentId], references: [id])
+  primaryModel    String
+  secondaryModels String      // Stored as JSON string
+  axisScores      String      // Stored as JSON string
+  explanation     String      // Stored as JSON string
+  confidenceScore Float
+  createdAt       DateTime    @default(now())
+}
+
+model CloudModel {
+  id          String   @id @default(uuid())
+  name        String
+  summary     String
+  strengths   String   // JSON string
+  weaknesses  String   // JSON string
+  bestFor     String   // JSON string
+  ccmPosition String   // JSON string
+}
+
+model ScoringRule {
+  id          String @id @default(uuid())
+  axis        String
+  condition   String // JSON format, e.g., { "field": "securityLevel", "value": "high" }
+  weight      Float
+  outputLabel String
+}
