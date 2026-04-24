@@ -14,7 +14,7 @@ export default function ResultsDisplay({ id }: { id: string }) {
   useEffect(() => {
     async function fetchResult() {
       try {
-        const res = await fetch(`http://localhost:3001/api/results/${id}`);
+        const res = await fetch(`http://localhost:5000/api/results/${id}`);
         const result = await res.json();
         if (result.success) {
           setData(result.data);

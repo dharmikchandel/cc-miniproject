@@ -48,7 +48,7 @@ export default function AssessmentForm() {
     setError(null);
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://localhost:3001/api/assess", {
+      const response = await fetch("http://localhost:5000/api/assessments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/assess', assessmentRoutes);
+app.use('/api/assessments', assessmentRoutes);
 app.use('/api/results', resultsRoutes);
 app.get('/api/assessments', getAssessments);
 
