@@ -1,14 +1,47 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle2, ShieldAlert } from 'lucide-react';
+import { CheckCircle2, ShieldAlert } from "lucide-react";
+
+type RankedModel = {
+  name: string;
+  confidence: number;
+  cons: string[];
+};
+
+type PrimaryModel = {
+  name: string;
+  pros: string[];
+  cons: string[];
+};
+
+type AxisScores = {
+  internalExternal: number;
+  proprietaryOpen: number;
+  perimeter: number;
+  sourcing: number;
+};
+
+type ResultData = {
+  primaryModel: string;
+  secondaryModels: string;
+  axisScores: string;
+  confidenceScore: number;
+  explanation: string;
+  assessment: {
+    securityLevel: string;
+    budgetLevel: string;
+    controlNeed: string;
+    portabilityNeed: string;
+  };
+};
 
 export default function ResultsDisplay({ id }: { id: string }) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<ResultData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,139 +61,149 @@ export default function ResultsDisplay({ id }: { id: string }) {
     fetchResult();
   }, [id]);
 
-  if (loading) return <div className="text-center p-10 font-mono text-muted-foreground animate-pulse">Computing Recommendation...</div>;
-  if (!data) return <div className="text-center p-10 text-risk">Recommendation not found.</div>;
+  if (loading) return <div className="app-panel p-10 text-center font-mono text-muted-foreground animate-pulse">Computing Recommendation...</div>;
+  if (!data) return <div className="app-panel p-10 text-center text-risk">Recommendation not found.</div>;
 
-  const primaryModel = JSON.parse(data.primaryModel);
-  const secondaryModels = JSON.parse(data.secondaryModels);
-  const axisScores = JSON.parse(data.axisScores);
+  const primaryModel = JSON.parse(data.primaryModel) as PrimaryModel;
+  const secondaryModels = JSON.parse(data.secondaryModels) as RankedModel[];
+  const axisScores = JSON.parse(data.axisScores) as AxisScores;
 
-  // Map axis scores from [-1, 1] to [0, 100] for radar chart
   const radarData = [
-    { subject: 'Internal vs External (-Ext/+Int)', A: ((axisScores.internalExternal + 1) / 2) * 100 },
-    { subject: 'Proprietary vs Open (-Opn/+Pro)', A: ((axisScores.proprietaryOpen + 1) / 2) * 100 },
-    { subject: 'Perimeter vs De-perimeter (-De/+Per)', A: ((axisScores.perimeter + 1) / 2) * 100 },
-    { subject: 'Insourced vs Outsourced (-Out/+Ins)', A: ((axisScores.sourcing + 1) / 2) * 100 },
+    { subject: "Internal vs External (-Ext/+Int)", A: ((axisScores.internalExternal + 1) / 2) * 100 },
+    { subject: "Proprietary vs Open (-Opn/+Pro)", A: ((axisScores.proprietaryOpen + 1) / 2) * 100 },
+    { subject: "Perimeter vs De-perimeter (-De/+Per)", A: ((axisScores.perimeter + 1) / 2) * 100 },
+    { subject: "Insourced vs Outsourced (-Out/+Ins)", A: ((axisScores.sourcing + 1) / 2) * 100 },
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Main Content Area */}
-      <div className="lg:col-span-2 space-y-8">
-        
-        {/* Recommendation Card */}
-        <Card className="bg-bg-1 border-primary-neon/50 shadow-[0_0_20px_var(--color-neon-glow)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary-neon" />
-          <CardHeader>
-            <div className="flex justify-between items-start">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="space-y-8 lg:col-span-2">
+        <Card className="panel-glow relative overflow-hidden border-primary/30">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+          <CardHeader className="border-b border-white/8 pb-6">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <CardDescription className="text-primary-neon font-mono mb-2 track-widest uppercase text-xs">Primary Recommendation</CardDescription>
-                <CardTitle className="text-3xl text-white">{primaryModel.name}</CardTitle>
+                <CardDescription className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-primary">Primary Recommendation</CardDescription>
+                <CardTitle className="text-3xl text-white sm:text-4xl">{primaryModel.name}</CardTitle>
               </div>
-              <Badge variant="outline" className="text-safe border-safe font-mono text-lg py-1 px-3 bg-safe/10">
+              <Badge variant="outline" className="status-success px-4 py-2 text-base font-semibold sm:text-lg">
                 {Math.round(data.confidenceScore)}% Match
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-base leading-8 text-muted-foreground sm:text-lg">
               {data.explanation}
             </p>
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-               <div>
-                  <h4 className="text-sm font-semibold text-safe flex items-center mb-2"><CheckCircle2 className="w-4 h-4 mr-2"/> Strengths</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-                    {primaryModel.pros.map((pro: string, i: number) => <li key={i}>{pro}</li>)}
-                  </ul>
-               </div>
-               <div>
-                  <h4 className="text-sm font-semibold text-tradeoff flex items-center mb-2"><ShieldAlert className="w-4 h-4 mr-2"/> Trade-offs</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-                    {primaryModel.cons.map((con: string, i: number) => <li key={i}>{con}</li>)}
-                  </ul>
-               </div>
+            <div className="grid gap-4 border-t border-white/8 pt-6 md:grid-cols-2">
+              <div className="rounded-2xl border border-[rgba(25,230,140,0.18)] bg-[rgba(25,230,140,0.06)] p-5">
+                <h4 className="mb-3 flex items-center text-sm font-semibold text-[var(--color-safe)]"><CheckCircle2 className="mr-2 h-4 w-4" /> Strengths</h4>
+                <ul className="ml-5 list-disc space-y-2 text-sm leading-6 text-muted-foreground">
+                  {primaryModel.pros.map((pro: string, i: number) => <li key={i}>{pro}</li>)}
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-[rgba(248,195,74,0.18)] bg-[rgba(248,195,74,0.06)] p-5">
+                <h4 className="mb-3 flex items-center text-sm font-semibold text-[var(--color-tradeoff)]"><ShieldAlert className="mr-2 h-4 w-4" /> Trade-offs</h4>
+                <ul className="ml-5 list-disc space-y-2 text-sm leading-6 text-muted-foreground">
+                  {primaryModel.cons.map((con: string, i: number) => <li key={i}>{con}</li>)}
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Comparison Table */}
-        <Card className="bg-bg-1 border-border">
-          <CardHeader>
-            <CardTitle>Model Comparison</CardTitle>
+        <Card className="panel-glow">
+          <CardHeader className="border-b border-white/8 pb-6">
+            <CardTitle className="text-xl">Model Comparison</CardTitle>
             <CardDescription>How other business models stack up against your requirements</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow className="border-border">
+                <TableRow>
                   <TableHead>Model Name</TableHead>
                   <TableHead>Match %</TableHead>
                   <TableHead>Primary Trade-off</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {secondaryModels.map((model: any, idx: number) => (
-                  <TableRow key={idx} className="border-border">
-                    <TableCell className="font-medium text-white">{model.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-mono bg-bg-2 text-muted-foreground">{Math.round(model.confidence)}%</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{model.cons[0]}</TableCell>
-                  </TableRow>
-                ))}
+                {secondaryModels.map((model, idx: number) => {
+                  const confidence = Math.round(model.confidence);
+                  const badgeClass =
+                    confidence >= 80 ? "status-success font-mono" :
+                    confidence >= 60 ? "status-warning font-mono" :
+                    "status-danger font-mono";
+
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium text-white">{model.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={badgeClass}>{confidence}%</Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{model.cons[0]}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       </div>
 
-      {/* Right Insight Panel */}
       <div className="space-y-8">
-        <Card className="bg-bg-1 border-border">
-          <CardHeader>
+        <Card className="panel-glow">
+          <CardHeader className="border-b border-white/8 pb-6">
             <CardTitle className="text-lg">CCM Visualization</CardTitle>
-            <CardDescription>Your organization's position across the 4 Cloud Cube dimensions mapped to 0-100 scales.</CardDescription>
+            <CardDescription>Your organization&apos;s position across the 4 Cloud Cube dimensions mapped to 0-100 scales.</CardDescription>
           </CardHeader>
-          <CardContent className="h-64 pt-0">
+          <CardContent className="h-72 pt-0">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                <PolarGrid stroke="#2e384d" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#8b9bb4', fontSize: 10 }} />
+                <PolarGrid stroke="rgba(120,170,255,0.18)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: "#9cb2cf", fontSize: 10 }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Organization" dataKey="A" stroke="#2F80FF" fill="#2F80FF" fillOpacity={0.4} />
-                <Tooltip contentStyle={{ backgroundColor: '#10151d', borderColor: '#1a2130' }} itemStyle={{ color: '#2F80FF' }} />
+                <Radar name="Organization" dataKey="A" stroke="#45d7ff" fill="#45d7ff" fillOpacity={0.38} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(11,21,38,0.92)",
+                    borderColor: "rgba(69,215,255,0.22)",
+                    borderRadius: "16px",
+                    color: "#edf7ff",
+                  }}
+                  itemStyle={{ color: "#45d7ff" }}
+                />
               </RadarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="bg-bg-1 border-border">
-           <CardHeader>
-             <CardTitle className="text-lg">Inputs Snapshot</CardTitle>
-           </CardHeader>
-           <CardContent>
-             <div className="grid grid-cols-2 gap-4 text-sm font-mono">
-                <div>
-                   <div className="text-muted-foreground text-xs">Security Need</div>
-                   <div className="text-white capitalize">{data.assessment.securityLevel}</div>
-                </div>
-                <div>
-                   <div className="text-muted-foreground text-xs">Budget Level</div>
-                   <div className="text-white capitalize">{data.assessment.budgetLevel}</div>
-                </div>
-                <div>
-                   <div className="text-muted-foreground text-xs">Control Need</div>
-                   <div className="text-white capitalize">{data.assessment.controlNeed}</div>
-                </div>
-                <div>
-                   <div className="text-muted-foreground text-xs">Portability</div>
-                   <div className="text-white capitalize">{data.assessment.portabilityNeed}</div>
-                </div>
-             </div>
-           </CardContent>
+        <Card className="panel-glow">
+          <CardHeader className="border-b border-white/8 pb-6">
+            <CardTitle className="text-lg">Inputs Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm font-mono">
+              <div className="metric-tile">
+                <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Security Need</div>
+                <div className="mt-2 text-base capitalize text-white">{data.assessment.securityLevel}</div>
+              </div>
+              <div className="metric-tile">
+                <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Budget Level</div>
+                <div className="mt-2 text-base capitalize text-white">{data.assessment.budgetLevel}</div>
+              </div>
+              <div className="metric-tile">
+                <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Control Need</div>
+                <div className="mt-2 text-base capitalize text-white">{data.assessment.controlNeed}</div>
+              </div>
+              <div className="metric-tile">
+                <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Portability</div>
+                <div className="mt-2 text-base capitalize text-white">{data.assessment.portabilityNeed}</div>
+              </div>
+            </div>
+          </CardContent>
         </Card>
       </div>
-
     </div>
   );
 }

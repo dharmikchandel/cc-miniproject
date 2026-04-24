@@ -55,33 +55,33 @@ export default function AssessmentForm() {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit assessment");
       }
 
       router.push(`/results/${data.data.recommendationId}`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to submit assessment");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Card className="bg-bg-1 border-border shadow-md">
-      <CardContent className="p-6">
+    <Card className="panel-glow overflow-visible">
+      <CardContent className="p-6 sm:p-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="organizationName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Organization Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Acme Corp" className="bg-input border-border" {...field} />
+                      <Input placeholder="Acme Corp" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -92,10 +92,10 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="industry"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Industry</FormLabel>
                     <FormControl>
-                      <Input placeholder="Finance, Tech, Healthcare..." className="bg-input border-border" {...field} />
+                      <Input placeholder="Finance, Tech, Healthcare..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,11 +106,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="budgetLevel"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Budget Level</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select budget level" />
                         </SelectTrigger>
                       </FormControl>
@@ -129,11 +129,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="securityLevel"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Security & Privacy Need</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select security level" />
                         </SelectTrigger>
                       </FormControl>
@@ -147,16 +147,16 @@ export default function AssessmentForm() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="complianceLevel"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Regulatory Compliance Strategy</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select compliance severity" />
                         </SelectTrigger>
                       </FormControl>
@@ -175,11 +175,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="collaborationLevel"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>External Collaboration Need</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select collaboration level" />
                         </SelectTrigger>
                       </FormControl>
@@ -198,11 +198,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="portabilityNeed"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>Data & Workload Portability Need</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select portability need" />
                         </SelectTrigger>
                       </FormControl>
@@ -221,11 +221,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="controlNeed"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>In-house Control & Management Need</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select control need" />
                         </SelectTrigger>
                       </FormControl>
@@ -244,11 +244,11 @@ export default function AssessmentForm() {
                 control={form.control}
                 name="teamSize"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition-colors hover:border-primary/20">
                     <FormLabel>IT Team Size</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-input border-border">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select team size" />
                         </SelectTrigger>
                       </FormControl>
@@ -263,11 +263,11 @@ export default function AssessmentForm() {
                 )}
               />
             </div>
-            
-            {error && <div className="text-risk font-mono text-sm">{error}</div>}
 
-            <div className="flex justify-end mt-8">
-              <Button type="submit" disabled={isSubmitting} className="bg-primary-neon text-white hover:bg-blue-600 transition-colors shadow-[0_0_15px_rgba(47,128,255,0.4)] px-8 font-semibold">
+            {error && <div className="rounded-2xl border border-[rgba(255,93,122,0.24)] bg-[rgba(255,93,122,0.12)] px-4 py-3 font-mono text-sm text-risk">{error}</div>}
+
+            <div className="flex justify-end pt-2">
+              <Button type="submit" disabled={isSubmitting} className="min-w-56">
                 {isSubmitting ? "Processing..." : "Generate Recommendation"}
               </Button>
             </div>
